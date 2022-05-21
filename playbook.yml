@@ -1,0 +1,33 @@
+- hosts: webservers
+  gather_facts: no
+  vars:
+    users:
+      - jaime
+      - sansa
+      - robert
+  tasks:
+
+    - name: 'Add user'
+      user:
+        name: "{{ item }}"
+        state: present
+        groups: "root"
+      loop: "{{ users }}"
+
+    - name: 'Create .ssh directory'
+      file:
+        path: /home/{{ item }}/.ssh
+        state: directory
+      loop: "{{ users }}"
+
+    - name: 'Add ssh auth key'
+      copy:
+        src: files/id_rsa
+        dest: /home/{{ item }}/.ssh/authorized_keys
+      loop: "{{ users }}"
+
+    - name: 'Add git config'
+      template:
+        src: files/git_config
+        dest: /home/{{ item }}/.gitconfig
+      loop: "{{ users }}"
